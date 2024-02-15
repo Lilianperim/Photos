@@ -1,7 +1,6 @@
-package com.example.photos
+package com.example.photos.ui
 
 import android.os.Bundle
-import androidx.activity.ComponentActivity
 import androidx.appcompat.app.AppCompatActivity
 
 class MainActivity : AppCompatActivity() {
