@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">Photos</string>
     <string name="hint_search">Buscar foto</string>
+    <string name="request_problem">Problema ao buscar fotos!</string>
 </resources>
