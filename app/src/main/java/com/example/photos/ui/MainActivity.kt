@@ -71,6 +71,13 @@ class MainActivity : AppCompatActivity() {
             }
 
             override fun onSuggestionClick(position: Int): Boolean {
+                val cursor = cursorAdapter?.cursor
+                if (cursor != null && cursor.moveToPosition(position)) {
+                    val photoUrlIndex = cursor.getColumnIndex("photoUrl")
+                    val thumbnailUrlIndex = cursor.getColumnIndex("thumbnailUrl")
+
+                    verifyIndexAndLoadImages(thumbnailUrlIndex, photoUrlIndex, cursor)
+                }
                 return true
             }
         })
@@ -103,5 +110,32 @@ class MainActivity : AppCompatActivity() {
             }
         )
         PlaceHolderJsonApi.getInstance(this).addToRequestQueue(photosRequest)
+    }
+
+    private fun verifyIndexAndLoadImages(
+        thumbnailUrlIndex: Int,
+        photoUrlIndex: Int,
+        cursor: Cursor
+    ) {
+        if (thumbnailUrlIndex >= 0 && photoUrlIndex >= 0) {
+            val thumbnailUrl = cursor.getString(thumbnailUrlIndex)
+            val photoUrl = cursor.getString(photoUrlIndex)
+
+            binding.ivThumbnail.isVisible = true
+            binding.ivPhoto.isVisible = true
+            Glide.with(this@MainActivity)
+                .load(thumbnailUrl)
+                .into(binding.ivThumbnail)
+
+            Glide.with(this@MainActivity)
+                .load(photoUrl)
+                .into(binding.ivPhoto)
+        } else {
+            Toast.makeText(
+                this@MainActivity,
+                getString(R.string.image_error),
+                Toast.LENGTH_SHORT
+            ).show()
+        }
     }
 }
