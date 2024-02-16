@@ -1,13 +1,16 @@
 package com.example.photos.ui
 
 import android.app.SearchManager
+import android.database.Cursor
 import android.database.MatrixCursor
 import android.os.Bundle
 import android.provider.BaseColumns
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
+import androidx.core.view.isVisible
 import androidx.cursoradapter.widget.SimpleCursorAdapter
+import com.bumptech.glide.Glide
 import com.example.photos.R
 import com.example.photos.databinding.ActivityMainBinding
 import com.example.photos.model.PhotosListItem
@@ -35,13 +38,13 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupSearchView() = with(binding) {
-        val from = arrayOf(SearchManager.SUGGEST_COLUMN_TEXT_1) // Coluna do cursor a ser mostrada
-        val to = intArrayOf(android.R.id.text1) // ID do TextView que vai mostrar os dados
+        val from = arrayOf(SearchManager.SUGGEST_COLUMN_TEXT_1)
+        val to = intArrayOf(android.R.id.text1)
 
         cursorAdapter = SimpleCursorAdapter(
             this@MainActivity,
-            android.R.layout.simple_list_item_1, // Layout padrão para exibir cada sugestão
-            null, // Cursor inicial é nulo
+            android.R.layout.simple_list_item_1,
+            null,
             from,
             to,
             SimpleCursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER
@@ -61,14 +64,30 @@ class MainActivity : AppCompatActivity() {
                 return true
             }
         })
+
+        svPhoto.setOnSuggestionListener(object : SearchView.OnSuggestionListener {
+            override fun onSuggestionSelect(position: Int): Boolean {
+                return false
+            }
+
+            override fun onSuggestionClick(position: Int): Boolean {
+                return true
+            }
+        })
     }
 
     private fun filterPhotos(query: String) {
         val filteredPhotos = photosList.filter { it.title.contains(query, ignoreCase = true) }
-
-        val cursor = MatrixCursor(arrayOf(BaseColumns._ID, SearchManager.SUGGEST_COLUMN_TEXT_1))
+        val cursor = MatrixCursor(
+            arrayOf(
+                BaseColumns._ID,
+                SearchManager.SUGGEST_COLUMN_TEXT_1,
+                "photoUrl",
+                "thumbnailUrl"
+            )
+        )
         filteredPhotos.forEachIndexed { index, photo ->
-            cursor.addRow(arrayOf(index, photo.title))
+            cursor.addRow(arrayOf(index, photo.title, photo.url, photo.thumbnailUrl))
         }
         cursorAdapter?.changeCursor(cursor)
     }
